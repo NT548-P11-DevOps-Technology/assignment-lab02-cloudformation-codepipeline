@@ -1,0 +1,6 @@
+[2024-10-05T09:57:20Z] DEBUG    - Logging set up successfully
+[2024-10-05T09:57:20Z] DEBUG    - Running None: Namespace(version=False, subparser_name=None, command=<function init at 0x00000191B7936FC0>, verbose=0, force=False, type_name=None, artifact_type=None, endpoint_url=None, region=None, target_schemas=[], profile=None)
+[2024-10-05T09:57:20Z] DEBUG    - Root directory: C:\Users\Lenovo\Desktop\Uni\4th Year\HK1\NT548.P11 - Công nghệ DevOps và ứng dụng\assignments\lab01\assignment-lab01-cloudformation
+[2024-10-05T09:57:20Z] WARNING  - Initializing new project
+[2024-10-05T09:57:20Z] DEBUG    - Loading project file 'C:\Users\Lenovo\Desktop\Uni\4th Year\HK1\NT548.P11 - Công nghệ DevOps và ứng dụng\assignments\lab01\assignment-lab01-cloudformation\.rpdk-config'
+[2024-10-05T09:57:50Z] DEBUG    - 'test' did not match '^[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::MODULE$'

@@ -1,7 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-
 Description: Build website with AWS CloudFormation
-
 Parameters:
   VPCCidr:
     Description: CIDR for MyVPC
