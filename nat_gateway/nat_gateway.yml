@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >-
+              EIP: Specifies an Elastic IP (EIP) address and can, optionally, associate it with an Amazon EC2 instance.
+
+Parameters:
+  PublicSubnet1:
+    Description: The ID of the Public Subnet 1
+    Type: String
+  PublicSubnet2:
+    Description: The ID of the Public Subnet 2
+    Type: String
+
+Resources:
+  ElasticIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc # The network (vpc).
+
+  ElasticIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc # The network (vpc).
+
+  NATGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP1.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  NATGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP2.AllocationId
+      SubnetId: !Ref PublicSubnet2
+
+Outputs:
+  NATGateway1:
+    Description: The ID of the NAT Gateway 1
+    Value: !Ref NATGateway1
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-NATGateway1
+
+  NATGateway2:
+    Description: The ID of the NAT Gateway 2
+    Value: !Ref NATGateway2
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-NATGateway2

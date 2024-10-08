@@ -9,19 +9,27 @@ Resources:
         Properties:
             TemplateURL: ./vpc/vpc_stack.yml
 
+    NATGatewayStack:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: ./nat_gateway/nat_gateway.yml
+            Parameters:
+                PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+                PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+
     RouteTableStack:
         Type: AWS::CloudFormation::Stack
         Properties:
             TemplateURL: ./route_table/route_table_stack.yml
             Parameters:
-                VpcId: !GetAtt VPCStack.Outputs.VPCId
-        DependsOn:
-             - VPCStack
+                VpcId: !GetAtt VPCStack.Outputs.VpcId
+                VpcName: !GetAtt VPCStack.Outputs.VpcName
+                PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+                PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+                NATGateway1: !GetAtt NATGatewayStack.Outputs.NATGateway1
+                NATGateway2: !GetAtt NATGatewayStack.Outputs.NATGateway2
+                PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1
+                PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
 
-    # NATGatewayStack:
-    #     Type: AWS::CloudFormation::Stack
-    #     Properties:
-    #         TemplateURL: ./nat_gateway/nat_gateway.yml
-    #         Parameters:
-    #             VpcId: !GetAtt VPCStack.Outputs.VPCId
+
                 

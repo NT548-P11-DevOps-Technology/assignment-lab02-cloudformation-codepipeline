@@ -152,26 +152,6 @@ Resources:
                 - 1
                 - !GetAZs
 
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Join 
-            - "-"
-            - - !Ref VpcName
-              - igw
-
-  GatewayToInternet:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
-
 Outputs:
   VpcId:
     Description: VpcId of VPC
