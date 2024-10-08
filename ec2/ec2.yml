@@ -1,0 +1,165 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >-
+                Instance: Specifies an EC2 instance. If an Elastic IP address is attached to your instance, AWS CloudFormation reattaches the Elastic IP address after it updates the instance.
+                NetworkInterface: Describes a network interface in an Amazon EC2 instance for AWS CloudFormation.
+
+Parameters:
+  VpcId:
+    Description: The ID of the VPC
+    Type: String
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: group03-keypair
+  InstanceType:
+    Description: The EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues: [ t2.micro, t2.small, t2.medium ]
+  PublicSubnet1:
+    Description: The ID of the Public Subnet 1
+    Type: String
+  PublicSubnet2:
+    Description: The ID of the Public Subnet 2
+    Type: String
+  PrivateSubnet1:
+    Description: The ID of the Private Subnet 1
+    Type: String
+  PrivateSubnet2:
+    Description: The ID of the Private Subnet 2
+    Type: String
+  AMI:
+    Description: The Amazon Machine Image ID
+    Type: AWS::EC2::Image::Id
+    Default: ami-0866a3c8686eaeeba # Ubuntu 24.04 LTS
+    AllowedValues: [ ami-0866a3c8686eaeeba, ami-005fc0f236362e99f ]
+  PublicEC2SG:
+    Description: The ID of the Public EC2 Security Group
+    Type: String
+  PrivateEC2SG:
+    Description: The ID of the Private EC2 Security Group
+    Type: String
+
+Resources:
+  KeyPair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyName: !Ref KeyName
+      KeyType: rsa
+      KeyFormat: pem
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref KeyName
+
+  PublicEC2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !Ref AMI
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref PublicEC2SG
+      UserData: !Base64 |
+        #!/bin/bash
+        apt update -y
+        apt install nginx -y
+        systemctl start nginx
+        systemctl enable nginx
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: PublicEC2Instance1
+
+  PublicEC2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !Ref AMI
+      SubnetId: !Ref PublicSubnet2
+      SecurityGroupIds:
+        - !Ref PublicEC2SG
+      UserData: !Base64 |
+        #!/bin/bash
+        apt update -y
+        apt install nginx -y
+        systemctl start nginx
+        systemctl enable nginx
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: PublicEC2Instance2
+
+  PrivateEC2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !Ref AMI
+      SubnetId: !Ref PrivateSubnet1
+      SecurityGroupIds:
+        - !Ref PrivateEC2SG
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: PrivateEC2Instance1
+
+  PrivateEC2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !Ref AMI
+      SubnetId: !Ref PrivateSubnet2
+      SecurityGroupIds:
+        - !Ref PrivateEC2SG
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: PrivateEC2Instance2
+
+Outputs:
+  PublicEC2Instance1:
+    Description: The ID of the Public EC2 Instance 1
+    Value: !Ref PublicEC2Instance1
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicEC2Instance1
+  PublicEC2Instance2:
+    Description: The ID of the Public EC2 Instance 2
+    Value: !Ref PublicEC2Instance2
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicEC2Instance2
+  PrivateEC2Instance1:
+    Description: The ID of the Private EC2 Instance 1
+    Value: !Ref PrivateEC2Instance1
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateEC2Instance1
+  PrivateEC2Instance2:
+    Description: The ID of the Private EC2 Instance 2
+    Value: !Ref PrivateEC2Instance2
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateEC2Instance2
+  KeyName:
+    Description: The name of the EC2 KeyPair
+    Value: !Ref KeyName
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-KeyName

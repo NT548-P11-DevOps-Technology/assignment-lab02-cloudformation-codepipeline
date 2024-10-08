@@ -37,3 +37,16 @@ Resources:
             TemplateURL: ./security_groups/security_groups.yml
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
+
+    EC2Instance:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: ./ec2/ec2.yml
+            Parameters:
+                VpcId: !GetAtt VPCStack.Outputs.VpcId
+                PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+                PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+                PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1
+                PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
+                PublicEC2SG: !GetAtt SecurityGroupStack.Outputs.PublicEC2SG
+                PrivateEC2SG: !GetAtt SecurityGroupStack.Outputs.PrivateEC2SG
