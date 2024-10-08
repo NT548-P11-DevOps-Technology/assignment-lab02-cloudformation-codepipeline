@@ -1,0 +1,8 @@
+ignore_templates:
+ignore_checks:
+  - I1022  # Prefer sub over join on empty delimiter
+include_checks:
+  - I
+regions:
+  - us-east-1
+  - us-west-2
