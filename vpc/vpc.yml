@@ -6,10 +6,10 @@ Description: >-
               NAT Gateway is created in the Public Subnet and Private Subnet is associated with the Route Table that has a route to the NAT Gateway
 
 Parameters:
-  VPCName:
+  VpcName:
     Description: This is Group03's VPC
     Type: String
-    Default: VPC Group03
+    Default: Group03's VPC
 
 Mappings:
   SubnetConfig:
@@ -40,7 +40,7 @@ Resources:
         - Key: Network
           Value: Public
         - Key: Name
-          Value: !Ref VPCName
+          Value: !Ref VpcName
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
@@ -64,7 +64,7 @@ Resources:
         - Key: Name
           Value: !Join 
             - "-"
-            - - !Ref VPCName
+            - - !Ref VpcName
               - public
               - !Select 
                 - 0
@@ -92,7 +92,7 @@ Resources:
           - Key: Name
             Value: !Join 
               - "-"
-              - - !Ref VPCName
+              - - !Ref VpcName
                 - public
                 - !Select 
                   - 1
@@ -107,23 +107,24 @@ Resources:
         - AZ: !Select
           - 0
           - !GetAZs
-        CidrBlock: !FindInMap 
-          - SubnetConfig
-          - PrivateSubnet1
-          - CIDR
-        Tags:
-          - Key: Application
-            Value: !Ref AWS::StackName
-          - Key: Network
-            Value: Private
-          - Key: Name
-            Value: !Join 
-              - "-"
-              - - !Ref VPCName
-                - private
-                - !Select 
-                  - 0
-                  - !GetAZs
+      CidrBlock: !FindInMap 
+        - SubnetConfig
+        - PrivateSubnet1
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Join 
+            - "-"
+            - - !Ref VpcName
+              - private
+              - !Select 
+                - 0
+                - !GetAZs
+
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -133,23 +134,23 @@ Resources:
         - AZ: !Select
           - 1
           - !GetAZs
-        CidrBlock: !FindInMap 
-          - SubnetConfig
-          - PrivateSubnet2
-          - CIDR
-        Tags:
-          - Key: Application
-            Value: !Ref AWS::StackName
-          - Key: Network
-            Value: Private
-          - Key: Name
-            Value: !Join 
-              - "-"
-              - - !Ref VPCName
-                - private
-                - !Select 
-                  - 1
-                  - !GetAZs
+      CidrBlock: !FindInMap 
+        - SubnetConfig
+        - PrivateSubnet2
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Join 
+            - "-"
+            - - !Ref VpcName
+              - private
+              - !Select 
+                - 1
+                - !GetAZs
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -162,7 +163,7 @@ Resources:
         - Key: Name
           Value: !Join 
             - "-"
-            - - !Ref VPCName
+            - - !Ref VpcName
               - igw
 
   GatewayToInternet:
@@ -172,11 +173,17 @@ Resources:
       InternetGatewayId: !Ref InternetGateway
 
 Outputs:
-  VPCId:
-    Description: VPCId of VPC
+  VpcId:
+    Description: VpcId of VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub ${AWS::Region}-${AWS::StackName}-VPCId
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-VpcId
+
+  VpcName:
+    Description: Name of the VPC
+    Value: !Ref VpcName
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-VpcName
 
   PublicSubnet1:
     Description: SubnetId of public subnet 1
