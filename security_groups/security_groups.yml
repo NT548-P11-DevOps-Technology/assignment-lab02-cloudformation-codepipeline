@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >-
+              SecurityGroup: Specifies a security group. To create a security group, use the VpcId property to specify the VPC for which to create the security group.
+
+Parameters:
+  VpcId:
+    Description: The ID of the VPC
+    Type: String
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances. In this case, only the IP address of the user who is deploying the stack is allowed to SSH to the EC2 instances.
+    Type: String
+    Default: 0.0.0.0/0 # This is a placeholder value. The actual value will be provided by the user.
+    MinLength: '9'
+    MaxLength: '18'
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+
+Resources:
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation
+
+

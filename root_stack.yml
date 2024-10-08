@@ -31,5 +31,9 @@ Resources:
                 PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1
                 PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
 
-
-                
+    SecurityGroupStack:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: ./security_groups/security_groups.yml
+            Parameters:
+                VpcId: !GetAtt VPCStack.Outputs.VpcId
