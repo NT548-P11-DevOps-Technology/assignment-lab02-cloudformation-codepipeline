@@ -2,11 +2,16 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >-
               SecurityGroup: Specifies a security group. To create a security group, use the VpcId property to specify the VPC for which to create the security group.
+              If you do not specify an egress rule, we add egress rules that allow IPv4 and IPv6 traffic on all ports and protocols to any destination. We do not add these rules if you specify your own egress rules.
 
 Parameters:
   VpcId:
     Description: The ID of the VPC
     Type: String
+  SGName:
+    Description: The name of the security group
+    Type: String
+    Default: group03-sg
   SSHLocation:
     Description: The IP address range that can be used to SSH to the EC2 instances. In this case, only the IP address of the user who is deploying the stack is allowed to SSH to the EC2 instances.
     Type: String
@@ -15,9 +20,17 @@ Parameters:
     MaxLength: '18'
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  HTTPLocation:
+    Description: The IP address range that can be used to access the EC2 instances over HTTP. In this case, any IP address is allowed to access the EC2 instances over HTTP.
+    Type: String
+    Default: 0.0.0.0/0
+    MinLength: '9'
+    MaxLength: '18'
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
 Resources:
-  SSHSecurityGroup:
+  PublicEC2SG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VpcId
@@ -27,5 +40,54 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref SSHLocation
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref SGName
 
+  PrivateEC2SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Enable HTTP access via port 80
+      GroupName: !Ref SGName
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: !Ref HTTPLocation
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: !Ref HTTPLocation
+        - IpProtocol: icmp
+          FromPort: '-1'
+          ToPort: '-1'
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Ref SGName
 
+Outputs:
+  PublicEC2SG:
+    Description: The ID of the Public EC2 Security Group
+    Value: !Ref PublicEC2SG
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicEC2SG
+
+  PrivateEC2SG:
+    Description: The ID of the Private EC2 Security Group
+    Value: !Ref PrivateEC2SG
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateEC2SG
