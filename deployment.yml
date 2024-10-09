@@ -1,1 +1,1 @@
-template-file-path: ./root_stack.yml
+template-file-path: https://group03-s3-bucket.s3.amazonaws.com/root_stack.yml

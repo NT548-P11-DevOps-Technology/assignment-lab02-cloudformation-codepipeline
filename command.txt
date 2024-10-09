@@ -16,3 +16,18 @@ aws cloudformation update-stack --stack-name <stack_name> --template-url <templa
 
 # Delete stack
 aws cloudformation delete-stack --stack-name <stack_name>
+
+# List s3 bucket
+aws s3 ls
+
+# Copy local file to s3 bucket
+aws s3 cp <local_file_path> <s3_url> # example: aws s3 cp cfn-demo.yaml s3://cfn-bucket-template
+
+# Get the version ID of s3 objects
+aws s3api list-object-versions --bucket <bucket_name> --query 'Versions[].[Key, VersionId]'
+
+# Update stack with specified template version on s3
+aws cloudformation update-stack --stack-name <stack_name> --template-url https://<bucket_name>.s3.amazonaws.com/cfn-demo.yaml?versionId=<this_is_the_version_id_of_a_object>
+
+# Delete the objects with version on s3
+aws s3api delete-object --bucket <bucket_name> --key <file_name> --version-id <version_id>
