@@ -3,16 +3,29 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
                 This is a nested stack that creates a EC2 instance in a VPC with public and private subnets
 
+Parameters:
+    BucketName:
+        Description: The name of the S3 bucket
+        Type: String
+        Default: group03-s3-bucket
+
 Resources:
+    # S3Bucket:
+    #     Type: AWS::CloudFormation::Stack
+    #     Properties:
+    #         TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/s3.yml
+    #         Parameters:
+    #             BucketName: !Ref BucketName
+
     VPCStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./vpc/vpc.yml
+            TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/vpc.yml
 
     NATGatewayStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./nat_gateway/nat_gateway.yml
+            TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/nat_gateway.yml
             Parameters:
                 PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
                 PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
@@ -20,7 +33,7 @@ Resources:
     RouteTableStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./route_tables/route_tables.yml
+            TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/route_tables.yml
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
                 VpcName: !GetAtt VPCStack.Outputs.VpcName
@@ -34,14 +47,14 @@ Resources:
     SecurityGroupStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./security_groups/security_groups.yml
+            TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/security_groups.yml
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
 
     EC2Instance:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./ec2/ec2.yml
+            TemplateURL: !Sub https://s3.amazonaws.com/${BucketName}/ec2.yml
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
                 PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
@@ -50,3 +63,10 @@ Resources:
                 PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
                 PublicEC2SG: !GetAtt SecurityGroupStack.Outputs.PublicEC2SG
                 PrivateEC2SG: !GetAtt SecurityGroupStack.Outputs.PrivateEC2SG
+
+Outputs:
+    EC2Instance:
+        Description: The ID of the EC2 instance
+        Value: !GetAtt EC2Instance.Outputs.EC2Instance
+        Export:
+            Name: !Sub ${AWS::Region}-${AWS::StackName}-EC2Instance

@@ -1,2 +1,18 @@
 # Validate the configs
 cfn-lint -t root_stack.yml
+
+# Deploy stack
+aws cloudformation deploy \
+	--template-file <template_path> \
+	--stack-name <stack_name>
+
+# Create stack
+aws cloudformation create-stack --stack-name <stack_name> --template-body <template_path>
+
+aws cloudformation describe-stacks --stack-name <stack_name>
+
+# Update stack
+aws cloudformation update-stack --stack-name <stack_name> --template-url <template_url>
+
+# Delete stack
+aws cloudformation delete-stack --stack-name <stack_name>
