@@ -66,10 +66,6 @@ Resources:
       GroupDescription: Enable HTTP access via port 80
       GroupName: !Sub Private-${SGName}
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: !Ref SSHLocation
         - IpProtocol: icmp
           FromPort: '-1'
           ToPort: '-1'
@@ -81,6 +77,24 @@ Resources:
           Value: Private
         - Key: Name
           Value: !Ref SGName
+
+  PrivateEC2SGIngressSSH:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref PrivateEC2SG
+      IpProtocol: tcp
+      FromPort: '22'
+      ToPort: '22'
+      SourceSecurityGroupId: !Ref PublicEC2SG
+
+  PrivateEC2SGIngressHTTP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref PrivateEC2SG
+      IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+      SourceSecurityGroupId: !Ref PublicEC2SG
 
 Outputs:
   PublicEC2SG:
