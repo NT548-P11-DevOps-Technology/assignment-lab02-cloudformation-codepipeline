@@ -15,7 +15,7 @@ Parameters:
   SSHLocation:
     Description: The IP address range that can be used to SSH to the EC2 instances. In this case, only the IP address of the user who is deploying the stack is allowed to SSH to the EC2 instances.
     Type: String
-    Default: 42.112.138.4/32 # This is a placeholder value. The actual value will be provided by the user.
+    Default: 103.249.21.110/32 # This is a placeholder value. The actual value will be provided by the user.
     MinLength: '9'
     MaxLength: '18'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
@@ -33,6 +33,7 @@ Resources:
     Properties:
       VpcId: !Ref VpcId
       GroupDescription: Enable SSH access via port 22
+      GroupName: !Sub Public-${SGName}
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
@@ -63,7 +64,7 @@ Resources:
     Properties:
       VpcId: !Ref VpcId
       GroupDescription: Enable HTTP access via port 80
-      GroupName: !Ref SGName
+      GroupName: !Sub Private-${SGName}
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
