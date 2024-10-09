@@ -78,3 +78,9 @@ Outputs:
     Value: !Ref InternetGateway
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-InternetGateway
+
+  ElasticIP1:
+    Description: The ID of the Elastic IP 1
+    Value: !Ref ElasticIP1
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-ElasticIP1
