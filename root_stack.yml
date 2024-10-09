@@ -7,7 +7,7 @@ Resources:
     VPCStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./vpc/vpc_stack.yml
+            TemplateURL: ./vpc/vpc.yml
 
     NATGatewayStack:
         Type: AWS::CloudFormation::Stack
@@ -20,7 +20,7 @@ Resources:
     RouteTableStack:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: ./route_table/route_table_stack.yml
+            TemplateURL: ./route_tables/route_tables.yml
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
                 VpcName: !GetAtt VPCStack.Outputs.VpcName

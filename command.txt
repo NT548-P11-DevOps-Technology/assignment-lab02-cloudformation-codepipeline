@@ -1,0 +1,2 @@
+# Validate the configs
+cfn-lint -t root_stack.yml
