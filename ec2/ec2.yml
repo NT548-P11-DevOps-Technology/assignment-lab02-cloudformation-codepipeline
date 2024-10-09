@@ -164,8 +164,3 @@ Outputs:
     Value: !Ref PrivateEC2Instance2
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateEC2Instance2
-  KeyName:
-    Description: The name of the EC2 KeyPair
-    Value: !Ref KeyName
-    Export:
-      Name: !Sub ${AWS::Region}-${AWS::StackName}-KeyName
