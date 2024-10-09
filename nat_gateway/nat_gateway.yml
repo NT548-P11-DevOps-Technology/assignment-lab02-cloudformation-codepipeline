@@ -84,3 +84,9 @@ Outputs:
     Value: !Ref ElasticIP1
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-ElasticIP1
+
+  ElasticIP2:
+    Description: The ID of the Elastic IP 2
+    Value: !Ref ElasticIP2
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-ElasticIP2
