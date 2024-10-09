@@ -4,6 +4,12 @@ Description: >-
               EIP: Specifies an Elastic IP (EIP) address and can, optionally, associate it with an Amazon EC2 instance.
 
 Parameters:
+  VpcId:
+    Description: The ID of the VPC
+    Type: String
+  VpcName:
+    Description: The name of the VPC
+    Type: String
   PublicSubnet1:
     Description: The ID of the Public Subnet 1
     Type: String
@@ -12,6 +18,26 @@ Parameters:
     Type: String
 
 Resources:
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Join 
+            - "-"
+            - - !Ref VpcName
+              - igw
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VpcId
+      InternetGatewayId: !Ref InternetGateway
+
   ElasticIP1:
     Type: AWS::EC2::EIP
     Properties:
@@ -46,3 +72,9 @@ Outputs:
     Value: !Ref NATGateway2
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-NATGateway2
+
+  InternetGateway:
+    Description: The ID of the Internet Gateway
+    Value: !Ref InternetGateway
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-InternetGateway

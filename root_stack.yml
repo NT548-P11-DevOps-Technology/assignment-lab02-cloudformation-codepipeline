@@ -27,6 +27,8 @@ Resources:
         Properties:
             TemplateURL: !Sub https://${BucketName}.s3.amazonaws.com/nat_gateway.yml
             Parameters:
+                VpcId: !GetAtt VPCStack.Outputs.VpcId
+                VpcName: !GetAtt VPCStack.Outputs.VpcName
                 PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
                 PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
 
@@ -43,6 +45,7 @@ Resources:
                 NATGateway2: !GetAtt NATGatewayStack.Outputs.NATGateway2
                 PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1
                 PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
+                InternetGateway: !GetAtt NATGatewayStack.Outputs.InternetGateway
 
     SecurityGroupStack:
         Type: AWS::CloudFormation::Stack
@@ -51,7 +54,12 @@ Resources:
             Parameters:
                 VpcId: !GetAtt VPCStack.Outputs.VpcId
 
-    EC2Instance:
+    KeyPairStack:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: !Sub https://${BucketName}.s3.amazonaws.com/keypair.yml
+
+    EC2InstanceStack:
         Type: AWS::CloudFormation::Stack
         Properties:
             TemplateURL: !Sub https://${BucketName}.s3.amazonaws.com/ec2.yml
@@ -65,8 +73,15 @@ Resources:
                 PrivateEC2SG: !GetAtt SecurityGroupStack.Outputs.PrivateEC2SG
 
 Outputs:
-    EC2Instance:
-        Description: The ID of the EC2 instance
-        Value: !GetAtt EC2Instance.Outputs.EC2Instance
-        Export:
-            Name: !Sub ${AWS::Region}-${AWS::StackName}-EC2Instance
+    PublicEC2Instance1:
+        Description: Public EC2 Instance 1
+        Value: !GetAtt EC2InstanceStack.Outputs.PublicEC2Instance1
+    PublicEC2Instance2:
+        Description: Public EC2 Instance 2
+        Value: !GetAtt EC2InstanceStack.Outputs.PublicEC2Instance2
+    PrivateEC2Instance1:
+        Description: Private EC2 Instance 1
+        Value: !GetAtt EC2InstanceStack.Outputs.PrivateEC2Instance1
+    PrivateEC2Instance2:
+        Description: Private EC2 Instance 2
+        Value: !GetAtt EC2InstanceStack.Outputs.PrivateEC2Instance2

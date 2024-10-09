@@ -33,28 +33,11 @@ Parameters:
   PrivateSubnet2:
     Description: The ID of the Private Subnet 2
     Type: String
+  InternetGateway:
+    Description: The ID of the Internet Gateway
+    Type: String
 
 Resources:
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Join 
-            - "-"
-            - - !Ref VpcName
-              - igw
-
-  GatewayToInternet:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VpcId
-      InternetGatewayId: !Ref InternetGateway
-
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -72,7 +55,6 @@ Resources:
 
   PubicRoute:
     Type: AWS::EC2::Route
-    DependsOn: GatewayToInternet
     Properties:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
