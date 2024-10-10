@@ -101,7 +101,7 @@ Resources:
       AvailabilityZone: !Select
         - 0
         - !GetAZs ''
-      CidrBlock: !FindInMap 
+      CidrBlock: !FindInMap # Find the CIDR block for the private subnet 1
         - SubnetConfig
         - PrivateSubnet1
         - CIDR
@@ -126,7 +126,7 @@ Resources:
       AvailabilityZone: !Select
         - 1
         - !GetAZs ''
-      CidrBlock: !FindInMap 
+      CidrBlock: !FindInMap # Find the CIDR block for the private subnet 2
         - SubnetConfig
         - PrivateSubnet2
         - CIDR
