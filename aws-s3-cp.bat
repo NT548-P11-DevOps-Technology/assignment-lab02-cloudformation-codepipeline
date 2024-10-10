@@ -7,5 +7,6 @@ aws s3 cp .\route_tables\route_tables.yml s3://%S3_BUCKET% --profile %AWS_PROFIL
 aws s3 cp .\nat_gateway\nat_gateway.yml s3://%S3_BUCKET% --profile %AWS_PROFILE%
 aws s3 cp .\security_groups\security_groups.yml s3://%S3_BUCKET% --profile %AWS_PROFILE%
 aws s3 cp .\ec2\ec2.yml s3://%S3_BUCKET% --profile %AWS_PROFILE%
+aws s3 cp .\root_stack.yml s3://%S3_BUCKET% --profile %AWS_PROFILE%
 
 echo "All files uploaded to S3 bucket %S3_BUCKET%"
