@@ -15,7 +15,7 @@ Parameters:
   SSHLocation:
     Description: The IP address range that can be used to SSH to the EC2 instances. In this case, only the IP address of the user who is deploying the stack is allowed to SSH to the EC2 instances.
     Type: String
-    Default: 113.161.93.242/32 # This is a placeholder value. The actual value will be provided by the user.
+    Default: 103.129.191.120/32 # This is a placeholder value. The actual value will be provided by the user.
     MinLength: '9'
     MaxLength: '18'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
