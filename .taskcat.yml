@@ -1,0 +1,14 @@
+general:
+  auth:
+    default: kltn
+  s3_bucket: devops-taskcat
+
+project:
+  name: devops
+  regions:
+    - us-east-1
+tests:
+  root-stack:
+    template: ./root_stack.yml
+    regions:
+      - us-east-1

@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    CF_LINT_VERSION: 1.18.4
+    TASKCAT_VERSION: 0.9.55
+    ARTIFACT_BUCKET: devops-taskcat-outputs
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - pip install cfn-lint==$CF_LINT_VERSION
+      - pip install taskcat==$TASKCAT_VERSION
+      - aws s3 mb s3://$ARTIFACT_BUCKET
+
+  pre_build:
+    commands:
+      - cfn-lint -p .
+
+  build:
+    commands:
+      - taskcat test run
+
+  post_build:
+    commands:
+      - aws s3 sync taskcat_outputs/ s3://$ARTIFACT_BUCKET
+
+artifacts:
+  files:
+    - '**/*'
