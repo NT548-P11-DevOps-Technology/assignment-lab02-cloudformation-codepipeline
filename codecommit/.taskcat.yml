@@ -1,14 +1,15 @@
 general:
   auth:
-    default: kltn
-  s3_bucket: devops-taskcat
+    default: anhkhoi
+  s3_bucket: devopsuit-taskcat
 
 project:
   name: devops
   regions:
     - us-east-1
+    
 tests:
   root-stack:
-    template: ./root_stack.yml
+    template: ./templates/main.yml
     regions:
       - us-east-1
