@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Set up Environment for Project
+Parameters:
+  ProjectName:
+    Description: Name of the project
+    Type: String
+    Default: assignment-lab01-cloudformation
+
+  paramPersonalGitHubAccessToken:
+    Type: String
+    MinLength: 10
+    ConstraintDescription: Personal GitHub access token is missing
+    Description: Provide your personal GitHub access token for CodeBuild to access your GitHub repo
+
+Resources:
+  myCodeBuildSourceCredential:
+    Type: AWS::CodeBuild::SourceCredential
+    Properties:
+      AuthType: ACCESS_TOKEN
+      ServerType: GITHUB
+      Token: !Ref paramPersonalGitHubAccessToken
+
+  myCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref ProjectName
+      Description: CodeBuild project for automatically build of static website hosted on s3
+      Source:
+        Type: GITHUB
+        Location: https://github.com/NT548-P11-DevOps-Technology/assignment-lab01-cloudformation.git
+        GitCloneDepth: 1
+        BuildSpec: buildspec.yml
+        Auth:
+          Type: OAUTH
+          Resource: !Ref myCodeBuildSourceCredential
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/main
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+      Artifacts:
+        Type: NO_ARTIFACTS
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+          GroupName: !Sub 'CodeBuild/${ProjectName}-CloudWatchLogs'
+      ServiceRole: !GetAtt myCodeBuildServiceRole.Arn
+
+  myCodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-CodeBuildRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub '${ProjectName}-CodeBuildPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-CloudWatchLogs'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-CloudWatchLogs:*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+                Resource:
+                  - !Sub 'arn:aws:s3:::${ProjectName}'
+                  - !Sub 'arn:aws:s3:::${ProjectName}/*'
+              - Effect: Allow
+                Action:
+                  - codebuild:*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:UpdateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:DescribeStackResources
+                  - cloudformation:GetTemplate
+                  - cloudformation:ValidateTemplate
+                Resource: '*'
+
+Outputs:
+  CodeBuildProjectName:
+    Description: Name of the CodeBuild project
+    Value: !Ref myCodeBuildProject
+    Export:
+      Name: !Sub '${AWS::StackName}-CodeBuildProjectName'
+
+  CodeBuildProjectArn:
+    Description: ARN of the CodeBuild project
+    Value: !GetAtt myCodeBuildProject.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-CodeBuildProjectArn'
