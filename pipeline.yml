@@ -4,113 +4,197 @@ Parameters:
   ProjectName:
     Description: Name of the project
     Type: String
-    Default: assignment-lab01-cloudformation
-
-  paramPersonalGitHubAccessToken:
-    Type: String
-    MinLength: 10
-    ConstraintDescription: Personal GitHub access token is missing
-    Description: Provide your personal GitHub access token for CodeBuild to access your GitHub repo
-
+    Default: devopsuit
 Resources:
-  myCodeBuildSourceCredential:
-    Type: AWS::CodeBuild::SourceCredential
+  GitHubConnection:
+    Type: "AWS::CodeConnections::Connection"
     Properties:
-      AuthType: ACCESS_TOKEN
-      ServerType: GITHUB
-      Token: !Ref paramPersonalGitHubAccessToken
-
-  myCodeBuildProject:
-    Type: AWS::CodeBuild::Project
+      ConnectionName: !Sub '${ProjectName}-GitHubConnection'
+      ProviderType: GitHub
+  TemplatesBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      Name: !Ref ProjectName
-      Description: CodeBuild project for automatically build of static website hosted on s3
-      Source:
-        Type: GITHUB
-        Location: https://github.com/NT548-P11-DevOps-Technology/assignment-lab01-cloudformation.git
-        GitCloneDepth: 1
-        BuildSpec: buildspec.yml
-        Auth:
-          Type: OAUTH
-          Resource: !Ref myCodeBuildSourceCredential
-      Triggers:
-        Webhook: true
-        FilterGroups:
-          - - Type: EVENT
-              Pattern: PUSH
-            - Type: HEAD_REF
-              Pattern: ^refs/heads/main
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:7.0
-      Artifacts:
-        Type: NO_ARTIFACTS
-      LogsConfig:
-        CloudWatchLogs:
-          Status: ENABLED
-          GroupName: !Sub 'CodeBuild/${ProjectName}-CloudWatchLogs'
-      ServiceRole: !GetAtt myCodeBuildServiceRole.Arn
+      BucketName: !Sub '${ProjectName}-templates'
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-artifacts'
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+  TaskCatBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-taskcat'
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
 
-  myCodeBuildServiceRole:
+  CFNRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${ProjectName}-CodeBuildRole'
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
         Statement:
-          - Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-            Action: sts:AssumeRole
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [cloudformation.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+  BuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codebuild.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codepipeline.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
       Policies:
-        - PolicyName: !Sub '${ProjectName}-CodeBuildPolicy'
+        - PolicyName: CodePipelineAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-CloudWatchLogs'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-CloudWatchLogs:*'
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:GetObjectVersion
-                  - s3:GetBucketAcl
-                  - s3:GetBucketLocation
-                Resource:
-                  - !Sub 'arn:aws:s3:::${ProjectName}'
-                  - !Sub 'arn:aws:s3:::${ProjectName}/*'
-              - Effect: Allow
-                Action:
-                  - codebuild:*
+              - Action: s3:ListBucket
+                Effect: Allow
+                Resource: !GetAtt [ArtifactsBucket, Arn]
+              - Action: s3:*Object
+                Effect: Allow
+                Resource: !Sub '${ArtifactsBucket.Arn}/*'
+              - Action:
+                - 'cloudformation:CreateStack'
+                - 'cloudformation:DescribeStacks'
+                - 'cloudformation:DeleteStack'
+                - 'cloudformation:UpdateStack'
+                - 'cloudformation:CreateChangeSet'
+                - 'cloudformation:ExecuteChangeSet'
+                - 'cloudformation:DeleteChangeSet'
+                - 'cloudformation:DescribeChangeSet'
+                - 'cloudformation:SetStackPolicy'
+                - 'iam:PassRole'
+                Effect: Allow
                 Resource: '*'
-              - Effect: Allow
-                Action:
-                  - cloudformation:CreateStack
-                  - cloudformation:UpdateStack
-                  - cloudformation:DeleteStack
-                  - cloudformation:DescribeStacks
-                  - cloudformation:DescribeStackEvents
-                  - cloudformation:DescribeStackResources
-                  - cloudformation:GetTemplate
-                  - cloudformation:ValidateTemplate
-                Resource: '*'
+              - Action:
+                - 'codestar-connections:UseConnection'
+                Effect: Allow
+                Resource: !GetAtt [GitHubConnection, ConnectionArn]
+              - Action:
+                - 'codebuild:StartBuild'
+                - 'codebuild:BatchGetBuilds'
+                Effect: Allow
+                Resource: !GetAtt [CodeBuildProject, Arn]
 
-Outputs:
-  CodeBuildProjectName:
-    Description: Name of the CodeBuild project
-    Value: !Ref myCodeBuildProject
-    Export:
-      Name: !Sub '${AWS::StackName}-CodeBuildProjectName'
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ProjectName}-CodeBuildProject'
+      Source:
+        Type: CODEPIPELINE
+        GitCloneDepth: 1
+        BuildSpec: buildspec.yml
+      Artifacts: 
+        Type: CODEPIPELINE
+      Environment:
+        PrivilegedMode: True
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:5.0
+        ComputeType: BUILD_GENERAL1_SMALL
+      ServiceRole: !GetAtt [BuildRole, Arn]
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+          GroupName: !Sub '${ProjectName}-CodeBuildLogs'
 
-  CodeBuildProjectArn:
-    Description: ARN of the CodeBuild project
-    Value: !GetAtt myCodeBuildProject.Arn
-    Export:
-      Name: !Sub '${AWS::StackName}-CodeBuildProjectArn'
+  MainPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore: 
+        Location: !Ref ArtifactsBucket
+        Type: S3
+      ExecutionMode: QUEUED
+      Name: devopsuit-pipeline
+      PipelineType: V2
+      RoleArn: !GetAtt [PipelineRole, Arn]
+      Stages: 
+        - Name: Source
+          Actions: 
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS                
+                Provider: CodeStarSourceConnection
+                Version: 1
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                FullRepositoryId: "NT548-P11-DevOps-Technology/lab2-templates"
+                BranchName: "main"
+                ConnectionArn: !GetAtt [GitHubConnection, ConnectionArn]
+                OutputArtifactFormat: CODE_ZIP
+              RunOrder: 1
+        - Name: Build
+          Actions: 
+            - Name: Build
+              InputArtifacts: 
+                - Name: SourceOutput
+              ActionTypeId: 
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts: 
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              RunOrder: 1
+        - Name: Deploy
+          Actions: 
+            - Name: Deploy
+              InputArtifacts: 
+                - Name: BuildOutput
+              ActionTypeId: 
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub '${ProjectName}-stack'
+                Capabilities: CAPABILITY_NAMED_IAM
+                TemplatePath: BuildOutput::main.yml
+                RoleArn: !GetAtt [CFNRole, Arn]
+              RunOrder: 1

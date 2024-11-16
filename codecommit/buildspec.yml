@@ -1,0 +1,30 @@
+version: 0.2
+
+env:
+  variables:
+    TEMPLATES_BUCKET: devopsuit-templates
+    TASKCAT_BUCKET: devopsuit-taskcat
+
+phases:
+  install:
+    commands:
+      - pip install -r requirements.txt
+
+  pre_build:
+    on-failure: ABORT
+    commands:
+      - cfn-lint -p templates/*.yml
+
+  build:
+    on-failure: ABORT
+    commands:
+      - aws s3 sync templates/ s3://$TEMPLATES_BUCKET --delete
+      - taskcat test run
+    finally:
+      - aws s3 sync taskcat_outputs/ s3://$TASKCAT_BUCKET/outputs --acl public-read --delete
+
+artifacts:
+  name: templates
+  files:
+    - 'main.yml'
+  base-directory: 'templates'

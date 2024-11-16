@@ -1,6 +1,4 @@
 general:
-  auth:
-    default: anhkhoi
   s3_bucket: devopsuit-taskcat
 
 project:
