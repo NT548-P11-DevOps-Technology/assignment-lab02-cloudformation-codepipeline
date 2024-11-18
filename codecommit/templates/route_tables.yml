@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >-
-              RouteTable: Specifies a route table for the specified VPC. After creating a route table, you can add routes and associate the table with a subnet
-              Route: Specify a route in a route table. You must specify either a destination CIDR block or prefix list ID.
-              SubnetRouteTableAssociation: Associates a subnet with a route table. The subnet and route table must be in the same VPC. This association causes traffic originating from the subnet to be routed according to the routes in the route table. A route table can be associated with multiple subnets.
-              NetworkAcl: Specifies a network ACL for your VPC
-              NetworkAclEntry: Specifies an entry, known as a rule, in a network ACL with a rule number you specify. Each network ACL has a set of numbered ingress rules and a separate set of numbered egress rules.
-              SubnetNetworkAclAssociation: Associates a subnet with a network ACL
+  RouteTable: Specifies a route table for the specified VPC. After creating a route table, you can add routes and associate the table with a subnet
+  Route: Specify a route in a route table. You must specify either a destination CIDR block or prefix list ID.
+  SubnetRouteTableAssociation: Associates a subnet with a route table. The subnet and route table must be in the same VPC. This association causes traffic originating from the subnet to be routed according to the routes in the route table. A route table can be associated with multiple subnets.
+  NetworkAcl: Specifies a network ACL for your VPC
+  NetworkAclEntry: Specifies an entry, known as a rule, in a network ACL with a rule number you specify. Each network ACL has a set of numbered ingress rules and a separate set of numbered egress rules.
+  SubnetNetworkAclAssociation: Associates a subnet with a network ACL
 
 Parameters:
   VpcId:

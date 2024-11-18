@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >-
-              Create a VPC with Public Subnet connected to the Internet Gateway and Private Subnet connected to NAT Gateway
-              Internet Gateway is attached to the VPC and Public Subnet is associated with the Route Table that has a route to the Internet Gateway
-              NAT Gateway is created in the Public Subnet and Private Subnet is associated with the Route Table that has a route to the NAT Gateway
+  Create a VPC with Public Subnet connected to the Internet Gateway and Private Subnet connected to NAT Gateway
+  Internet Gateway is attached to the VPC and Public Subnet is associated with the Route Table that has a route to the Internet Gateway
+  NAT Gateway is created in the Public Subnet and Private Subnet is associated with the Route Table that has a route to the NAT Gateway
 
 Parameters:
   VpcName:

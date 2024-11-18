@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >-
-              SecurityGroup: Specifies a security group. To create a security group, use the VpcId property to specify the VPC for which to create the security group.
-              If you do not specify an egress rule, we add egress rules that allow IPv4 and IPv6 traffic on all ports and protocols to any destination. We do not add these rules if you specify your own egress rules.
+  SecurityGroup: Specifies a security group. To create a security group, use the VpcId property to specify the VPC for which to create the security group.
+  If you do not specify an egress rule, we add egress rules that allow IPv4 and IPv6 traffic on all ports and protocols to any destination. We do not add these rules if you specify your own egress rules.
 
 Parameters:
   VpcId:

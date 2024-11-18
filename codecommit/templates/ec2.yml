@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >-
-                Instance: Specifies an EC2 instance. If an Elastic IP address is attached to your instance, AWS CloudFormation reattaches the Elastic IP address after it updates the instance.
-                NetworkInterface: Describes a network interface in an Amazon EC2 instance for AWS CloudFormation.
+  Instance: Specifies an EC2 instance. If an Elastic IP address is attached to your instance, AWS CloudFormation reattaches the Elastic IP address after it updates the instance.
+  NetworkInterface: Describes a network interface in an Amazon EC2 instance for AWS CloudFormation.
 
 Parameters:
   KeyName:

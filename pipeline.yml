@@ -1,10 +1,16 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Set up Environment for Project
+
 Parameters:
   ProjectName:
     Description: Name of the project
     Type: String
     Default: devopsuit
+  RepositoryName:
+    Description: Name of the repository
+    Type: String
+    Default: 'NT548-P11-DevOps-Technology/lab2-templates'
+
 Resources:
   GitHubConnection:
     Type: "AWS::CodeConnections::Connection"
@@ -96,25 +102,25 @@ Resources:
                 Effect: Allow
                 Resource: !Sub '${ArtifactsBucket.Arn}/*'
               - Action:
-                - 'cloudformation:CreateStack'
-                - 'cloudformation:DescribeStacks'
-                - 'cloudformation:DeleteStack'
-                - 'cloudformation:UpdateStack'
-                - 'cloudformation:CreateChangeSet'
-                - 'cloudformation:ExecuteChangeSet'
-                - 'cloudformation:DeleteChangeSet'
-                - 'cloudformation:DescribeChangeSet'
-                - 'cloudformation:SetStackPolicy'
-                - 'iam:PassRole'
+                  - 'cloudformation:CreateStack'
+                  - 'cloudformation:DescribeStacks'
+                  - 'cloudformation:DeleteStack'
+                  - 'cloudformation:UpdateStack'
+                  - 'cloudformation:CreateChangeSet'
+                  - 'cloudformation:ExecuteChangeSet'
+                  - 'cloudformation:DeleteChangeSet'
+                  - 'cloudformation:DescribeChangeSet'
+                  - 'cloudformation:SetStackPolicy'
+                  - 'iam:PassRole'
                 Effect: Allow
                 Resource: '*'
               - Action:
-                - 'codestar-connections:UseConnection'
+                  - 'codestar-connections:UseConnection'
                 Effect: Allow
                 Resource: !GetAtt [GitHubConnection, ConnectionArn]
               - Action:
-                - 'codebuild:StartBuild'
-                - 'codebuild:BatchGetBuilds'
+                  - 'codebuild:StartBuild'
+                  - 'codebuild:BatchGetBuilds'
                 Effect: Allow
                 Resource: !GetAtt [CodeBuildProject, Arn]
 
@@ -161,7 +167,7 @@ Resources:
               OutputArtifacts:
                 - Name: SourceOutput
               Configuration:
-                FullRepositoryId: "NT548-P11-DevOps-Technology/lab2-templates"
+                FullRepositoryId: !Ref RepositoryName
                 BranchName: "main"
                 ConnectionArn: !GetAtt [GitHubConnection, ConnectionArn]
                 OutputArtifactFormat: CODE_ZIP
