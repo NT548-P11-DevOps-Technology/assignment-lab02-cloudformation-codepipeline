@@ -4,7 +4,7 @@
 /.idea/
 
 # TaskCat outputs
-taskcat_outputs/
+# taskcat_outputs/
 .taskcat/
 .taskcat_overrides.yml
 
